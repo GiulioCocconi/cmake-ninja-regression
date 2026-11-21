@@ -1,0 +1,35 @@
+Linux pandemonium 6.19.11-xanmod1 #1-NixOS SMP PREEMPT_DYNAMIC Tue Jan  1 00:00:00 UTC 1980 x86_64 GNU/Linux
+ANSI_COLOR="0;38;2;126;186;228"
+BUG_REPORT_URL="https://github.com/NixOS/nixpkgs/issues"
+BUILD_ID="26.05.20260409.4c1018d"
+CPE_NAME="cpe:/o:nixos:nixos:26.05"
+DEFAULT_HOSTNAME=nixos
+DOCUMENTATION_URL="https://nixos.org/learn.html"
+HOME_URL="https://nixos.org/"
+ID=nixos
+ID_LIKE=""
+IMAGE_ID=""
+IMAGE_VERSION=""
+LOGO="nix-snowflake"
+NAME=NixOS
+PRETTY_NAME="NixOS 26.05 (Yarara)"
+SUPPORT_URL="https://nixos.org/community.html"
+VARIANT=""
+VARIANT_ID=""
+VENDOR_NAME=NixOS
+VENDOR_URL="https://nixos.org/"
+VERSION="26.05 (Yarara)"
+VERSION_CODENAME=yarara
+VERSION_ID="26.05"
+/nix/store/r9941n32g4wyvggz2703dlplbdq8a6rd-cmake-4.1.2/bin/cmake
+cmake version 4.1.2
+/nix/store/7a235m7crqbb4h49sak20fqxpw3n7hr0-ninja-1.13.2/bin/ninja
+1.13.2
+/nix/store/788mx070y81zjlg5ipcl0cra3afviw9k-gcc-wrapper-15.2.0/bin/gcc
+gcc (GCC) 15.2.0
+/nix/store/788mx070y81zjlg5ipcl0cra3afviw9k-gcc-wrapper-15.2.0/bin/g++
+g++ (GCC) 15.2.0
+/nix/store/bcnisk3ydfgv26v2gw3zlky24g00yww2-git-2.54.0/bin/git
+git version 2.54.0
+/nix/store/60m4rxhg2fldqaak400c0lry96ijrzqn-python3-3.13.13/bin/python3
+Python 3.13.13

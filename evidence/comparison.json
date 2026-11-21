@@ -1,0 +1,38 @@
+[
+  {
+    "requested_version": "4.4.5",
+    "executable": "/home/giulio/cmake-ninja-regression/builds/binary-4.4.5/bin/cmake",
+    "exit_status": 0,
+    "status": "passed",
+    "actual_version": "cmake version 4.4.5",
+    "command": [
+      "/home/giulio/cmake-ninja-regression/builds/binary-4.4.5/bin/cmake",
+      "-S",
+      "/home/giulio/cmake-ninja-regression/repro/basic",
+      "-B",
+      "/home/giulio/cmake-ninja-regression/builds/basic-4.4.5",
+      "-G",
+      "Ninja",
+      "--debug-trycompile",
+      "-DCMAKE_MAKE_PROGRAM=/nix/store/7a235m7crqbb4h49sak20fqxpw3n7hr0-ninja-1.13.2/bin/ninja"
+    ]
+  },
+  {
+    "requested_version": "4.5.0",
+    "executable": "/home/giulio/cmake-ninja-regression/builds/binary-4.5.0/bin/cmake",
+    "exit_status": 0,
+    "status": "passed",
+    "actual_version": "cmake version 4.5.0",
+    "command": [
+      "/home/giulio/cmake-ninja-regression/builds/binary-4.5.0/bin/cmake",
+      "-S",
+      "/home/giulio/cmake-ninja-regression/repro/basic",
+      "-B",
+      "/home/giulio/cmake-ninja-regression/builds/basic-4.5.0",
+      "-G",
+      "Ninja",
+      "--debug-trycompile",
+      "-DCMAKE_MAKE_PROGRAM=/nix/store/7a235m7crqbb4h49sak20fqxpw3n7hr0-ninja-1.13.2/bin/ninja"
+    ]
+  }
+]

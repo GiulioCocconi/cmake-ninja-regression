@@ -1,0 +1,12 @@
+[
+  {
+    "version": "4.4.5",
+    "executable": "/home/giulio/cmake-ninja-regression/builds/binary-4.4.5/bin/cmake",
+    "exit_status": 0
+  },
+  {
+    "version": "4.5.0",
+    "executable": "/home/giulio/cmake-ninja-regression/builds/binary-4.5.0/bin/cmake",
+    "exit_status": 0
+  }
+]

@@ -1,0 +1,33 @@
+fe95f96096 Ninja Multi-Config: Fix cross-config codegen target suffix
+f54117c6b1 Ninja: Evaluate generator expressions in CODEGEN outputs
+902ec85438 Makefile, Ninja: Fix no-op codegen builds with no CODEGEN
+af81311ce6 c++modules: Fix transitive import of object producing BMIs
+89fa36af1a Merge topic 'enable-test_prep-by-default' into release-4.5
+a924bde521 Merge topic 'ninja-mc-test-install-prep' into release-4.5
+4bbdabae74 Ninja, Makefile, FASTBuild: Enable test_prep by default
+3882e26cef Ninja Multi-Config: Provide {test,install}_prep default config aliases
+21213ae1d9 DPClang: add compiler support
+0ea2d28b54 Ninja: Add install_prep targets for minimal builds
+f69754ad63 SYCL: Initial language implementation
+85e050e594 Merge topic 'sstream-3'
+3fadb7a600 Merge topic 'discover-test-deps'
+509514e475 Source: migrate ostringstream usage to cmStrCat
+463517fddd ctest: Support Test Dependencies for discover_test modules
+fa60523bf6 Source: fix ast-grep suggestions
+a0a17c9ce8 Source: fix almost all ast-grep suggestions
+f4e378278b Merge topic 'cmp0181-trycompile-policy-order'
+5e52f92a2a try_compile: Add support for toolchain files to query CMP0181
+1d2f0120be Source: Reduce string allocations, part 3
+106b5b5fd7 Merge topic 'cmp0210-trycompile-policy-order'
+2d85779126 Ninja: Account for explicit target dependencies via CODEGEN
+f460a199e3 Source: Add and use CM_UNREACHABLE macro
+26f6dab469 Ninja: Use cmJSONState for -E cmake_ninja_* commands
+ab1bd6f6c6 c++modules: Remove CXX_MODULE_STD and CMAKE_CXX_COMPILER_IMPORT_STD
+00d8e23414 c++modules: use synthetic interface objects for import std
+c31f09a1e6 CMAKE_TEST_BUILD_DEPENDS: Use config when evaluating test dependency targets
+a5a9ec9113 TargetTypes: Extract target-related types to dedicated header
+4933a2de10 Merge topic 'testprep-makefile-generators'
+8192c7dce1 Merge topic 'skip-toolchain-checks-more-variables'
+503bdb9777 Makefile: Generate test_prep targets for CMAKE_TEST_BUILD_DEPENDS
+0e142193ac Ninja: Honor Fortran_BUILDING_INTRINSIC_MODULES
+5db35a2d55 Merge topic 'swift-cmp0214-try_compile'

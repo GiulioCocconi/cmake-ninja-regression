@@ -1,0 +1,38 @@
+CMake Debug Log at /home/giulio/cmake-ninja-regression/builds/binary-4.4.5/share/cmake-4.4/Modules/CMakeDetermineCompilerABI.cmake:123 (try_compile):
+  Executing try_compile (CMAKE_C_ABI_COMPILED) in:
+
+    /home/giulio/cmake-ninja-regression/builds/detect-4.4.5/CMakeFiles/CMakeScratch/TryCompile-2mTg7I
+Call Stack (most recent call first):
+  /home/giulio/cmake-ninja-regression/builds/binary-4.4.5/share/cmake-4.4/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)
+  CMakeLists.txt:11 (enable_language)
+
+
+CMake Debug Log at /home/giulio/cmake-ninja-regression/builds/binary-4.4.5/share/cmake-4.4/Modules/CMakeDetermineCompilerABI.cmake:123 (try_compile):
+  Executing try_compile (CMAKE_CXX_ABI_COMPILED) in:
+
+    /home/giulio/cmake-ninja-regression/builds/detect-4.4.5/CMakeFiles/CMakeScratch/TryCompile-Ej64li
+Call Stack (most recent call first):
+  /home/giulio/cmake-ninja-regression/builds/binary-4.4.5/share/cmake-4.4/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)
+  CMakeLists.txt:12 (enable_language)
+
+
+#COMPILER_HASH#3ce0f73778d9144513c67f1b651106a378fbb935
+#COMPILER_C_HASH#f4d8a010851121818950a09076364fa57caa0c84
+#COMPILER_C_VERSION#15.2.0
+#COMPILER_C_ID#GNU
+#COMPILER_C_PATH#/nix/store/788mx070y81zjlg5ipcl0cra3afviw9k-gcc-wrapper-15.2.0/bin/gcc
+#COMPILER_CXX_HASH#4ad8911abecb14e6050671760ad773f3d9adbbc4
+#COMPILER_CXX_VERSION#15.2.0
+#COMPILER_CXX_ID#GNU
+#COMPILER_CXX_PATH#/nix/store/788mx070y81zjlg5ipcl0cra3afviw9k-gcc-wrapper-15.2.0/bin/g++
+CMake Warning (unused-cli):
+  Manually-specified variables were not used by the project:
+
+    BUILD_SHARED_LIBS
+    CMAKE_INSTALL_BINDIR
+    CMAKE_INSTALL_LIBDIR
+    VCPKG_PLATFORM_TOOLSET
+    VCPKG_SET_CHARSET_FLAG
+    _VCPKG_ROOT_DIR
+
+

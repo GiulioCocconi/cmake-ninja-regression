@@ -1,0 +1,21 @@
+CMake Debug Log at /home/giulio/cmake-ninja-regression/builds/binary-4.5.0/share/cmake-4.5/Modules/CMakeDetermineCompilerABI.cmake:123 (try_compile):
+  Executing try_compile (CMAKE_C_ABI_COMPILED) in:
+
+    /home/giulio/cmake-ninja-regression/builds/silent-ninja-4.5.0/CMakeFiles/CMakeScratch/TryCompile-z0Q5dq
+Call Stack (most recent call first):
+  /home/giulio/cmake-ninja-regression/builds/binary-4.5.0/share/cmake-4.5/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)
+  CMakeLists.txt:2 (project)
+
+
+CMake Error:
+  The detected version of Ninja () is less than the version of Ninja required
+  by CMake (1.3).
+
+
+CMake Error at /home/giulio/cmake-ninja-regression/builds/binary-4.5.0/share/cmake-4.5/Modules/CMakeDetermineCompilerABI.cmake:123 (try_compile):
+  Failed to generate test project build system.
+Call Stack (most recent call first):
+  /home/giulio/cmake-ninja-regression/builds/binary-4.5.0/share/cmake-4.5/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)
+  CMakeLists.txt:2 (project)
+
+

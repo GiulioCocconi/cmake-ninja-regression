@@ -1,0 +1,90 @@
+name: CMake Ninja compiler detection investigation
+on: workflow_dispatch
+permissions:
+  contents: read
+jobs:
+  compare:
+    runs-on: ubuntu-26.04
+    timeout-minutes: 45
+    steps:
+      - uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: 4.0.7
+      - uses: jurplel/install-qt-action@v4
+        with:
+          version: 6.11.0
+          target: wasm
+          arch: wasm_singlethread
+      - name: Prepare exact versions and detector
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y strace
+          mkdir -p "$RUNNER_TEMP/cmake-repro" "$GITHUB_WORKSPACE/repro-logs"
+          cd "$RUNNER_TEMP/cmake-repro"
+          git clone --no-checkout https://github.com/microsoft/vcpkg.git vcpkg
+          git -C vcpkg checkout --detach 9eec002df1cd109f8f104cd966a763daf9751489
+          for v in 4.4.5 4.5.0; do
+            url="https://github.com/Kitware/CMake/releases/download/v$v"
+            curl -fsSL "$url/cmake-$v-linux-x86_64.tar.gz" -o "cmake-$v.tar.gz"
+            curl -fsSL "$url/cmake-$v-SHA-256.txt" -o "sha-$v.txt"
+            expected=$(awk -v file="cmake-$v-linux-x86_64.tar.gz" '$2 == file {print $1}' "sha-$v.txt")
+            test -n "$expected"
+            echo "$expected  cmake-$v.tar.gz" | sha256sum -c -
+            mkdir -p "cmake-$v"
+            tar -xzf "cmake-$v.tar.gz" -C "cmake-$v" --strip-components=1
+          done
+      - name: Compare and trace detector
+        shell: bash
+        run: |
+          set -uo pipefail
+          root="$RUNNER_TEMP/cmake-repro"
+          logs="$GITHUB_WORKSPACE/repro-logs"
+          vcpkg="$root/vcpkg"
+          ninja="$(command -v ninja)"
+          {
+            uname -a
+            cat /etc/os-release
+            git -C "$vcpkg" rev-parse HEAD
+            printf 'ninja=%s\n' "$ninja"
+            "$ninja" --version
+            gcc --version | head -1
+            for n in PATH LD_LIBRARY_PATH EMSDK EMSDK_NODE QT_ROOT_DIR QT_HOST_PATH PKG_CONFIG_PATH; do printf '%s=%s\n' "$n" "${!n-}"; done
+          } > "$logs/environment.txt"
+          for version in 4.4.5 4.5.0; do
+            cmake="$root/cmake-$version/bin/cmake"
+            "$cmake" --version > "$logs/cmake-$version-version.txt"
+            dir="$root/build-$version"
+            mkdir -p "$dir" "$root/installed-$version" "$root/package-$version"
+            args=("$cmake" "$vcpkg/scripts/detect_compiler" -G Ninja
+              -DCMAKE_BUILD_TYPE=Release "-DCMAKE_INSTALL_PREFIX=$root/package-$version"
+              "-DVCPKG_COMPILER_CACHE_FILE=$root/installed-$version/compiler-file-hash-cache.json"
+              "-DCMAKE_MAKE_PROGRAM=$ninja" -DCMAKE_SYSTEM_NAME=Linux -DBUILD_SHARED_LIBS=OFF
+              "-DVCPKG_CHAINLOAD_TOOLCHAIN_FILE=$vcpkg/scripts/toolchains/linux.cmake"
+              -DVCPKG_TARGET_TRIPLET=x64-linux -DVCPKG_SET_CHARSET_FLAG=ON -DVCPKG_PLATFORM_TOOLSET=external
+              -DCMAKE_EXPORT_NO_PACKAGE_REGISTRY=ON -DCMAKE_FIND_PACKAGE_NO_PACKAGE_REGISTRY=ON
+              -DCMAKE_FIND_PACKAGE_NO_SYSTEM_PACKAGE_REGISTRY=ON -DCMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP=TRUE
+              -DCMAKE_VERBOSE_MAKEFILE=ON -DVCPKG_APPLOCAL_DEPS=OFF
+              "-DCMAKE_TOOLCHAIN_FILE=$vcpkg/scripts/buildsystems/vcpkg.cmake"
+              -DCMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION=ON -DVCPKG_CXX_FLAGS= -DVCPKG_CXX_FLAGS_RELEASE=
+              -DVCPKG_CXX_FLAGS_DEBUG= -DVCPKG_C_FLAGS= -DVCPKG_C_FLAGS_RELEASE= -DVCPKG_C_FLAGS_DEBUG=
+              -DVCPKG_CRT_LINKAGE=dynamic -DVCPKG_LINKER_FLAGS= -DVCPKG_LINKER_FLAGS_RELEASE=
+              -DVCPKG_LINKER_FLAGS_DEBUG= -DVCPKG_TARGET_ARCHITECTURE=x64 -DCMAKE_INSTALL_LIBDIR:STRING=lib
+              -DCMAKE_INSTALL_BINDIR:STRING=bin "-D_VCPKG_ROOT_DIR=$vcpkg" "-DZ_VCPKG_ROOT_DIR=$vcpkg"
+              "-D_VCPKG_INSTALLED_DIR=$root/installed-$version" -DVCPKG_MANIFEST_INSTALL=OFF)
+            printf '%q ' "${args[@]}" > "$logs/command-$version.sh"
+            printf '\n' >> "$logs/command-$version.sh"
+            (cd "$dir" && strace -ff -s 4096 -e trace=execve,write,writev,exit,exit_group -o "$logs/strace-$version" "${args[@]}") > "$logs/stdout-$version.txt" 2> "$logs/stderr-$version.txt"
+            status=$?
+            printf '%s\n' "$status" > "$logs/status-$version.txt"
+            tar -czf "$logs/build-$version.tar.gz" -C "$dir" .
+            printf '%s exit %s\n' "$version" "$status"
+          done
+      - name: Upload investigation evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: cmake-ninja-investigation
+          path: repro-logs/
+          if-no-files-found: error
