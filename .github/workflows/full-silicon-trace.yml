@@ -12,7 +12,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        cmake: ["4.4.5", "4.5.0"]
+        include:
+          - cmake: "4.4.5"
+            mode: system
+          - cmake: "4.5.0"
+            mode: system
+          - cmake: "4.5.0"
+            mode: original
     steps:
       - name: Check out the original SILICON revision into an isolated runner directory
         uses: actions/checkout@v7
@@ -51,14 +57,16 @@ jobs:
         shell: bash
         env:
           CMAKE_VERSION: ${{ matrix.cmake }}
-          VCPKG_FORCE_SYSTEM_BINARIES: "1"
           VCPKG_DISABLE_METRICS: "1"
         run: |
           set -uo pipefail
+          set +e
+          if [[ "${{ matrix.mode }}" == system ]]; then export VCPKG_FORCE_SYSTEM_BINARIES=1; else unset VCPKG_FORCE_SYSTEM_BINARIES; fi
           export PATH="$RUNNER_TEMP/cmake-selected/bin:$PATH"
           output="$GITHUB_WORKSPACE/trace-output"
           silicon="$GITHUB_WORKSPACE/silicon"
           qt_cmake="$QT_ROOT_DIR/bin/qt-cmake"
+          chmod +x "$qt_cmake"
           {
             uname -a
             cat /etc/os-release
@@ -90,7 +98,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: full-silicon-cmake-${{ matrix.cmake }}
+          name: full-silicon-cmake-${{ matrix.cmake }}-${{ matrix.mode }}
           path: trace-output/
           retention-days: 7
           if-no-files-found: warn
