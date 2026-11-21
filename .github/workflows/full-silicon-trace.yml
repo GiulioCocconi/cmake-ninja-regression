@@ -1,0 +1,96 @@
+name: Trace full SILICON vcpkg detection
+on:
+  workflow_dispatch:
+  push:
+    branches: [investigate/full-trace]
+permissions:
+  contents: read
+jobs:
+  trace:
+    runs-on: ubuntu-26.04
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        cmake: ["4.4.5", "4.5.0"]
+    steps:
+      - name: Check out the original SILICON revision into an isolated runner directory
+        uses: actions/checkout@v7
+        with:
+          repository: GiulioCocconi/SILICON
+          ref: 4b5ffb6a457f0ae0e268ba02a7155a46ada6a2fb
+          path: silicon
+          persist-credentials: false
+      - uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: 4.0.7
+      - uses: jurplel/install-qt-action@v4
+        with:
+          version: 6.11.0
+          target: wasm
+          arch: wasm_singlethread
+      - name: Prepare dependencies and selected CMake
+        shell: bash
+        env:
+          CMAKE_VERSION: ${{ matrix.cmake }}
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y ninja-build autoconf autoconf-archive automake libtool jq zip strace
+          mkdir -p "$RUNNER_TEMP/cmake-selected" "$GITHUB_WORKSPACE/trace-output"
+          base="cmake-$CMAKE_VERSION-linux-x86_64.tar.gz"
+          url="https://github.com/Kitware/CMake/releases/download/v$CMAKE_VERSION"
+          curl -fsSL "$url/$base" -o "$RUNNER_TEMP/$base"
+          curl -fsSL "$url/cmake-$CMAKE_VERSION-SHA-256.txt" -o "$RUNNER_TEMP/cmake-sha.txt"
+          expected=$(awk -v file="$base" '$2 == file {print $1}' "$RUNNER_TEMP/cmake-sha.txt")
+          test -n "$expected"
+          echo "$expected  $RUNNER_TEMP/$base" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/$base" --strip-components=1 -C "$RUNNER_TEMP/cmake-selected"
+          (cd silicon && bash ./ci/wasm_remove_deps.sh)
+      - name: Trace full configuration
+        shell: bash
+        env:
+          CMAKE_VERSION: ${{ matrix.cmake }}
+          VCPKG_FORCE_SYSTEM_BINARIES: "1"
+          VCPKG_DISABLE_METRICS: "1"
+        run: |
+          set -uo pipefail
+          export PATH="$RUNNER_TEMP/cmake-selected/bin:$PATH"
+          output="$GITHUB_WORKSPACE/trace-output"
+          silicon="$GITHUB_WORKSPACE/silicon"
+          qt_cmake="$QT_ROOT_DIR/bin/qt-cmake"
+          {
+            uname -a
+            cat /etc/os-release
+            git -C "$silicon" rev-parse HEAD
+            command -v cmake; cmake --version
+            command -v ninja; ninja --version
+            gcc --version | head -1
+            for n in PATH LD_LIBRARY_PATH EMSDK EMSDK_NODE QT_ROOT_DIR QT_HOST_PATH PKG_CONFIG_PATH VCPKG_FORCE_SYSTEM_BINARIES VCPKG_DISABLE_METRICS; do printf '%s=%s\n' "$n" "${!n-}"; done
+          } > "$output/environment.txt"
+          (cd "$silicon" && printf '%q ' "$qt_cmake" -Bbuild -G Ninja -DCMAKE_BUILD_TYPE=Debug) > "$output/top-level-command.txt"
+          printf '\n' >> "$output/top-level-command.txt"
+          # A timeout bounds work if compiler detection passes and vcpkg starts building ports.
+          (cd "$silicon" && timeout 1200 strace -ff -s 256 -e trace=execve,read,write,writev,pipe,pipe2,dup,dup2,dup3,close,exit,exit_group -o "$output/process" "$qt_cmake" -Bbuild -G Ninja -DCMAKE_BUILD_TYPE=Debug) > "$output/configure.stdout" 2> "$output/configure.stderr"
+          status=$?
+          printf '%s\n' "$status" > "$output/configure.status"
+          printf 'Top-level configure exit: %s (124 means timeout)\n' "$status"
+          # These files contain the exact vcpkg-generated invocation and diagnostics, if created.
+          if [[ -d "$silicon/build/_deps/vcpkg-src/buildtrees/detect_compiler" ]]; then
+            cp -a "$silicon/build/_deps/vcpkg-src/buildtrees/detect_compiler" "$output/detect_compiler"
+          fi
+          if [[ -f "$silicon/build/vcpkg-manifest-install.log" ]]; then
+            cp "$silicon/build/vcpkg-manifest-install.log" "$output/"
+          fi
+          if [[ -f "$silicon/build/CMakeFiles/CMakeConfigureLog.yaml" ]]; then
+            cp "$silicon/build/CMakeFiles/CMakeConfigureLog.yaml" "$output/"
+          fi
+          # Never interpret the job's success as detector success: status and traces are artifacts.
+      - name: Upload trace and vcpkg logs
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: full-silicon-cmake-${{ matrix.cmake }}
+          path: trace-output/
+          retention-days: 7
+          if-no-files-found: warn
